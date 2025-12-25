@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto update(Long userId, UserDto userDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("Пользователь не найден"));
 
         if (userDto.getEmail() != null) {
             checkEmailUnique(userDto.getEmail(), userId);
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
             if (existing.getEmail().equals(email)
                     && (excludeUserId == null || !existing.getId().equals(excludeUserId))) {
-                throw new ConflictException("Email already exists");
+                throw new ConflictException("Имейл уже существует");
             }
         }
     }
