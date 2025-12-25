@@ -32,7 +32,7 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> findByOwner( @RequestHeader("X-Sharer-User-Id") Long ownerId) {
+    public List<ItemDto> findByOwner(@RequestHeader("X-Sharer-User-Id") Long ownerId) {
         return itemService.findByOwner(ownerId);
     }
 
