@@ -15,14 +15,15 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto create(UserDto userDto) {
 
         checkEmailUnique(userDto.getEmail(), null);
 
-        User user = UserMapper.toModel(userDto);
-        return UserMapper.toDto(userRepository.create(user));
+        User user = userMapper.toModel(userDto);
+        return userMapper.toDto(userRepository.create(user));
     }
 
     @Override
@@ -39,12 +40,12 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
         }
 
-        return UserMapper.toDto(userRepository.update(user));
+        return userMapper.toDto(userRepository.update(user));
     }
 
     @Override
     public UserDto findById(Long userId) {
-        return UserMapper.toDto(
+        return userMapper.toDto(
                 userRepository.findById(userId)
                         .orElseThrow(() -> new NotFoundException("Пользователь не найден"))
         );
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserDto> findAll() {
         return userRepository.findAll().stream()
-                .map(UserMapper::toDto)
+                .map(userMapper::toDto)
                 .toList();
     }
 
