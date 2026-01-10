@@ -126,31 +126,60 @@ public class BookingServiceImpl implements BookingService {
     }
 
     private List<Booking> getBookingsForBooker(Long userId, BookingState state, LocalDateTime now) {
-        return switch (state) {
-            case ALL -> bookingRepository.findAllByBooker_IdOrderByStartDesc(userId);
-            case CURRENT ->
-                    bookingRepository.findAllByBooker_IdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
-            case PAST -> bookingRepository.findAllByBooker_IdAndEndBeforeOrderByStartDesc(userId, now);
-            case FUTURE -> bookingRepository.findAllByBooker_IdAndStartAfterOrderByStartDesc(userId, now);
-            case WAITING ->
-                    bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
-            case REJECTED ->
-                    bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
-        };
+        List<Booking> bookings;
+
+        switch (state) {
+            case ALL:
+                bookings = bookingRepository.findAllByBooker_IdOrderByStartDesc(userId);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findAllByBooker_IdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+                break;
+            case PAST:
+                bookings = bookingRepository.findAllByBooker_IdAndEndBeforeOrderByStartDesc(userId, now);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findAllByBooker_IdAndStartAfterOrderByStartDesc(userId, now);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.WAITING);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findAllByBooker_IdAndStatusOrderByStartDesc(userId, BookingStatus.REJECTED);
+                break;
+            default:
+                bookings = bookingRepository.findAllByBooker_IdOrderByStartDesc(userId);
+        }
+
+        return bookings;
     }
 
     private List<Booking> getBookingsForOwner(Long ownerId, BookingState state, LocalDateTime now) {
-        return switch (state) {
-            case ALL -> bookingRepository.findAllByItem_Owner_IdOrderByStartDesc(ownerId);
-            case CURRENT ->
-                    bookingRepository.findAllByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
-            case PAST -> bookingRepository.findAllByItem_Owner_IdAndEndBeforeOrderByStartDesc(ownerId, now);
-            case FUTURE -> bookingRepository.findAllByItem_Owner_IdAndStartAfterOrderByStartDesc(ownerId, now);
-            case WAITING ->
-                    bookingRepository.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
-            case REJECTED ->
-                    bookingRepository.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
-        };
-    }
+        List<Booking> bookings;
 
+        switch (state) {
+            case ALL:
+                bookings = bookingRepository.findAllByItem_Owner_IdOrderByStartDesc(ownerId);
+                break;
+            case CURRENT:
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStartBeforeAndEndAfterOrderByStartDesc(ownerId, now, now);
+                break;
+            case PAST:
+                bookings = bookingRepository.findAllByItem_Owner_IdAndEndBeforeOrderByStartDesc(ownerId, now);
+                break;
+            case FUTURE:
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStartAfterOrderByStartDesc(ownerId, now);
+                break;
+            case WAITING:
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.WAITING);
+                break;
+            case REJECTED:
+                bookings = bookingRepository.findAllByItem_Owner_IdAndStatusOrderByStartDesc(ownerId, BookingStatus.REJECTED);
+                break;
+            default:
+                bookings = bookingRepository.findAllByItem_Owner_IdOrderByStartDesc(ownerId);
+        }
+
+        return bookings;
+    }
 }
