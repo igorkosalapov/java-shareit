@@ -2,7 +2,6 @@ package ru.practicum.shareit.booking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -62,27 +61,27 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "from Booking b " +
             "join fetch b.item i " +
             "join fetch b.booker u " +
-            "where i.id in :itemIds " +
-            "and b.status = :status " +
-            "and b.end < :now " +
+            "where i.id in ?1 " +
+            "and b.status = ?2 " +
+            "and b.end < ?3 " +
             "order by b.end desc")
     List<Booking> findLastBookingsForItems(
-            @Param("itemIds") List<Long> itemIds,
-            @Param("status") BookingStatus status,
-            @Param("now") LocalDateTime now
+            List<Long> itemIds,
+            BookingStatus status,
+            LocalDateTime now
     );
 
     @Query("select b " +
             "from Booking b " +
             "join fetch b.item i " +
             "join fetch b.booker u " +
-            "where i.id in :itemIds " +
-            "and b.status = :status " +
-            "and b.start > :now " +
+            "where i.id in ?1 " +
+            "and b.status = ?2 " +
+            "and b.start > ?3 " +
             "order by b.start asc")
     List<Booking> findNextBookingsForItems(
-            @Param("itemIds") List<Long> itemIds,
-            @Param("status") BookingStatus status,
-            @Param("now") LocalDateTime now
+            List<Long> itemIds,
+            BookingStatus status,
+            LocalDateTime now
     );
 }
