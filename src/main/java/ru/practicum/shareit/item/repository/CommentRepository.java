@@ -12,13 +12,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findAllByItem_IdOrderByCreatedDesc(Long itemId);
 
-    @Query("""
-            select c
-            from Comment c
-            join fetch c.item i
-            join fetch c.author a
-            where i.id in :itemIds
-            order by c.created desc
-            """)
+    @Query("select c " +
+            "from Comment c " +
+            "join fetch c.item i " +
+            "join fetch c.author a " +
+            "where i.id in :itemIds " +
+            "order by c.created desc")
     List<Comment> findAllByItemIdsWithItemAndAuthorOrderByCreatedDesc(List<Long> itemIds);
 }

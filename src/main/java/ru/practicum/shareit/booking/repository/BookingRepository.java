@@ -58,32 +58,28 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             Long itemId, Long bookerId, BookingStatus status
     );
 
-    @Query("""
-                select b
-                from Booking b
-                join fetch b.item i
-                join fetch b.booker u
-                where i.id in :itemIds
-                  and b.status = :status
-                  and b.end < :now
-                order by b.end desc
-            """)
+    @Query("select b " +
+            "from Booking b " +
+            "join fetch b.item i " +
+            "join fetch b.booker u " +
+            "where i.id in :itemIds " +
+            "and b.status = :status " +
+            "and b.end < :now " +
+            "order by b.end desc")
     List<Booking> findLastBookingsForItems(
             @Param("itemIds") List<Long> itemIds,
             @Param("status") BookingStatus status,
             @Param("now") LocalDateTime now
     );
 
-    @Query("""
-                select b
-                from Booking b
-                join fetch b.item i
-                join fetch b.booker u
-                where i.id in :itemIds
-                  and b.status = :status
-                  and b.start > :now
-                order by b.start asc
-            """)
+    @Query("select b " +
+            "from Booking b " +
+            "join fetch b.item i " +
+            "join fetch b.booker u " +
+            "where i.id in :itemIds " +
+            "and b.status = :status " +
+            "and b.start > :now " +
+            "order by b.start asc")
     List<Booking> findNextBookingsForItems(
             @Param("itemIds") List<Long> itemIds,
             @Param("status") BookingStatus status,
