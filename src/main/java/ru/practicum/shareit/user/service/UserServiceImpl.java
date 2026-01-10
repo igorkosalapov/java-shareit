@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
         checkEmailUnique(userDto.getEmail(), null);
 
         User user = userMapper.toModel(userDto);
-        return userMapper.toDto(userRepository.create(user));
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
@@ -40,27 +40,25 @@ public class UserServiceImpl implements UserService {
             user.setName(userDto.getName());
         }
 
-        return userMapper.toDto(userRepository.update(user));
+        return userMapper.toDto(userRepository.save(user));
     }
 
     @Override
     public UserDto findById(Long userId) {
-        return userMapper.toDto(
-                userRepository.findById(userId)
-                        .orElseThrow(() -> new NotFoundException("Пользователь не найден"))
-        );
+        return userMapper.toDto(findByIdOrThrow(userId));
     }
 
     @Override
     public List<UserDto> findAll() {
-        return userRepository.findAll().stream()
+        return userRepository.findAll()
+                .stream()
                 .map(userMapper::toDto)
                 .toList();
     }
 
     @Override
     public void delete(Long userId) {
-        userRepository.delete(userId);
+        userRepository.deleteById(userId);
     }
 
     @Override
@@ -70,14 +68,10 @@ public class UserServiceImpl implements UserService {
     }
 
     private void checkEmailUnique(String email, Long excludeUserId) {
-        for (User existing : userRepository.findAll()) {
-            if (existing.getEmail() == null) continue;
-
-            if (existing.getEmail().equals(email)
-                    && (excludeUserId == null || !existing.getId().equals(excludeUserId))) {
+        userRepository.findByEmail(email).ifPresent(existing -> {
+            if (!existing.getId().equals(excludeUserId)) {
                 throw new ConflictException("Имейл уже существует");
             }
-        }
+        });
     }
-
 }
