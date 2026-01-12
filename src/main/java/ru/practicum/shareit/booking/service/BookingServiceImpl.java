@@ -34,7 +34,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingDto create(Long userId, BookingCreateDto request) {
-        validateBookingDates(request.getStart(), request.getEnd());
 
         User booker = userService.findByIdOrThrow(userId);
         Item item = itemRepository.findById(request.getItemId())
@@ -48,9 +47,7 @@ public class BookingServiceImpl implements BookingService {
             throw new BadRequestException("Владелец не может бронировать свою вещь");
         }
 
-        Booking booking = new Booking();
-        booking.setStart(request.getStart());
-        booking.setEnd(request.getEnd());
+        Booking booking = bookingMapper.fromCreateDto(request);
         booking.setItem(item);
         booking.setBooker(booker);
         booking.setStatus(BookingStatus.WAITING);
@@ -97,7 +94,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> findAllByBooker(Long userId, BookingState state) {
         userService.findByIdOrThrow(userId);
         LocalDateTime now = LocalDateTime.now();
-        return toDtos(getBookingsForBooker(userId, state, now));
+        return bookingMapper.toDtoList(getBookingsForBooker(userId, state, now));
     }
 
     @Override
@@ -105,24 +102,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingDto> findAllByOwner(Long ownerId, BookingState state) {
         userService.findByIdOrThrow(ownerId);
         LocalDateTime now = LocalDateTime.now();
-        return toDtos(getBookingsForOwner(ownerId, state, now));
-    }
-
-    private void validateBookingDates(LocalDateTime start, LocalDateTime end) {
-        if (start == null || end == null) {
-            throw new BadRequestException("Дата начала и окончания бронирования обязательны");
-        }
-        if (!start.isBefore(end)) {
-            throw new BadRequestException("Дата начала должна быть раньше даты окончания");
-        }
-        LocalDateTime now = LocalDateTime.now();
-        if (!end.isAfter(now) || !start.isAfter(now)) {
-            throw new BadRequestException("Дата бронирования должна быть в будущем");
-        }
-    }
-
-    private List<BookingDto> toDtos(List<Booking> bookings) {
-        return bookings.stream().map(bookingMapper::toDto).toList();
+        return bookingMapper.toDtoList(getBookingsForBooker(ownerId, state, now));
     }
 
     private List<Booking> getBookingsForBooker(Long userId, BookingState state, LocalDateTime now) {

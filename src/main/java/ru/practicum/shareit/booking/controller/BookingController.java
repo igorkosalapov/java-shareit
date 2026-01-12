@@ -9,6 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.exception.BadRequestException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static ru.practicum.shareit.common.Headers.USER_ID;
@@ -22,6 +23,7 @@ public class BookingController {
 
     @PostMapping
     public BookingDto create(@RequestHeader(USER_ID) Long userId, @Valid @RequestBody BookingCreateDto request) {
+        validateBookingDates(request.getStart(), request.getEnd());
         return bookingService.create(userId, request);
     }
 
@@ -42,24 +44,29 @@ public class BookingController {
     @GetMapping
     public List<BookingDto> findAllByBooker(
             @RequestHeader(USER_ID) Long userId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") BookingState state
     ) {
-        return bookingService.findAllByBooker(userId, parseState(state));
+        return bookingService.findAllByBooker(userId, state);
     }
 
     @GetMapping("/owner")
     public List<BookingDto> findAllByOwner(
             @RequestHeader(USER_ID) Long userId,
-            @RequestParam(defaultValue = "ALL") String state
+            @RequestParam(defaultValue = "ALL") BookingState state
     ) {
-        return bookingService.findAllByOwner(userId, parseState(state));
+        return bookingService.findAllByOwner(userId, state);
     }
 
-    private BookingState parseState(String state) {
-        try {
-            return BookingState.valueOf(state.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new BadRequestException("Unknown state: " + state);
+    private void validateBookingDates(LocalDateTime start, LocalDateTime end) {
+        if (start == null || end == null) {
+            throw new BadRequestException("Дата начала и окончания бронирования обязательны");
+        }
+        if (!start.isBefore(end)) {
+            throw new BadRequestException("Дата начала должна быть раньше даты окончания");
+        }
+        LocalDateTime now = LocalDateTime.now();
+        if (!end.isAfter(now) || !start.isAfter(now)) {
+            throw new BadRequestException("Дата бронирования должна быть в будущем");
         }
     }
 }

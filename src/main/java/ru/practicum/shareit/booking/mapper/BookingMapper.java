@@ -1,11 +1,10 @@
 package ru.practicum.shareit.booking.mapper;
 
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingItemDto;
-import ru.practicum.shareit.booking.dto.BookingShortDto;
-import ru.practicum.shareit.booking.dto.BookingUserDto;
+import ru.practicum.shareit.booking.dto.*;
 import ru.practicum.shareit.booking.model.Booking;
+
+import java.util.List;
 
 @Component
 public class BookingMapper {
@@ -36,5 +35,23 @@ public class BookingMapper {
                 booking.getStart(),
                 booking.getEnd()
         );
+    }
+
+    public Booking fromCreateDto(BookingCreateDto dto) {
+        if (dto == null) {
+            return null;
+        }
+
+        Booking booking = new Booking();
+        booking.setStart(dto.getStart());
+        booking.setEnd(dto.getEnd());
+        return booking;
+    }
+
+    public List<BookingDto> toDtoList(List<Booking> bookings) {
+        if (bookings == null) {
+            return List.of();
+        }
+        return bookings.stream().map(this::toDto).toList();
     }
 }
