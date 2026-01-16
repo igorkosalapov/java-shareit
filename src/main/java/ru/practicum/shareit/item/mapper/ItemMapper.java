@@ -22,6 +22,9 @@ public interface ItemMapper {
     void update(ItemDto dto, @MappingTarget Item item);
 
     @Mapping(target = "requestId", source = "request.id")
+    @Mapping(target = "lastBooking", ignore = true)
+    @Mapping(target = "nextBooking", ignore = true)
+    @Mapping(target = "comments", ignore = true)
     ItemDto toDto(Item item);
 
     List<ItemDto> toDtoList(List<Item> items);
