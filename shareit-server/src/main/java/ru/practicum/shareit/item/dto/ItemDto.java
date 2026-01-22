@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.booking.dto.BookingShortDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,5 +32,5 @@ public class ItemDto {
 
     private BookingShortDto nextBooking;
 
-    private List<CommentDto> comments;
+    private List<CommentDto> comments = new ArrayList<>();;
 }
