@@ -18,6 +18,8 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.model.ItemRequest;
+import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
@@ -33,6 +35,7 @@ import java.util.stream.Collectors;
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemRequestRepository itemRequestRepository;
     private final UserService userService;
     private final ItemMapper itemMapper;
     private final BookingRepository bookingRepository;
@@ -48,6 +51,12 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemMapper.toEntity(itemDto);
         item.setOwner(owner);
 
+        Long requestId = itemDto.getRequestId();
+        if (requestId != null) {
+            ItemRequest request = itemRequestRepository.findById(requestId)
+                    .orElseThrow(() -> new NotFoundException("Запрос вещи не найден: " + requestId));
+            item.setRequest(request);
+        }
         return itemMapper.toDto(itemRepository.save(item));
     }
 
