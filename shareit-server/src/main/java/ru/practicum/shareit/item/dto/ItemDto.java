@@ -32,5 +32,5 @@ public class ItemDto {
 
     private BookingShortDto nextBooking;
 
-    private List<CommentDto> comments = new ArrayList<>();;
+    private List<CommentDto> comments = new ArrayList<>();
 }
