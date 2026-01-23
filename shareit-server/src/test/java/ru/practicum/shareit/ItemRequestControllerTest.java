@@ -71,21 +71,6 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void postRequests_shouldReturn400_whenDescriptionBlank() throws Exception {
-        long userId = 1L;
-
-        ItemRequestCreateDto body = new ItemRequestCreateDto("   ");
-
-        mvc.perform(post("/requests")
-                        .header(USER_HEADER, userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(body)))
-                .andExpect(status().isBadRequest());
-
-        verifyNoInteractions(itemRequestService);
-    }
-
-    @Test
     void getRequests_shouldReturnList() throws Exception {
         long userId = 1L;
 

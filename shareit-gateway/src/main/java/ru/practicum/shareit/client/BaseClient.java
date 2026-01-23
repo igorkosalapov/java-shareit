@@ -21,10 +21,6 @@ public class BaseClient {
         this.serverUrl = serverUrl;
     }
 
-    /* =======================
-       Public helpers (simple)
-       ======================= */
-
     protected ResponseEntity<Object> get(String path, long userId) {
         return exchange(buildUri(path, null), HttpMethod.GET, new HttpEntity<>(headers(userId)));
     }
@@ -37,17 +33,14 @@ public class BaseClient {
         return exchange(buildUri(path, null), HttpMethod.POST, new HttpEntity<>(body, headers(userId)));
     }
 
-    /** PATCH без query */
     protected ResponseEntity<Object> patch(String path, long userId, @Nullable Object body) {
         return patch(path, userId, body, null);
     }
 
-    /** PATCH без body (редко, но бывает) */
     protected ResponseEntity<Object> patch(String path, long userId) {
         return patch(path, userId, null, null);
     }
 
-    /** PATCH с query */
     protected ResponseEntity<Object> patch(String path, long userId, @Nullable Object body, @Nullable Map<String, Object> queryParams) {
         return exchange(buildUri(path, queryParams),
                 HttpMethod.PATCH,
@@ -58,11 +51,6 @@ public class BaseClient {
         return exchange(buildUri(path, null), HttpMethod.DELETE, new HttpEntity<>(headers(userId)));
     }
 
-    /* =======================
-       Template URL + uriVars
-       (лучше использовать для path variables, не для query)
-       ======================= */
-
     protected ResponseEntity<Object> getTemplate(String pathTemplate, long userId, Map<String, Object> uriVars) {
         return exchange(buildTemplateUri(pathTemplate, uriVars), HttpMethod.GET, new HttpEntity<>(headers(userId)));
     }
@@ -72,15 +60,11 @@ public class BaseClient {
         return exchange(buildTemplateUri(pathTemplate, uriVars), HttpMethod.PATCH, new HttpEntity<>(body, headers(userId)));
     }
 
-    /* =======================
-       Core exchange
-       ======================= */
-
     private ResponseEntity<Object> exchange(URI uri, HttpMethod method, HttpEntity<?> entity) {
         try {
             return restTemplate.exchange(uri, method, entity, Object.class);
         } catch (HttpStatusCodeException e) {
-            // важно: возвращаем статус и тело как есть
+
             return ResponseEntity
                     .status(e.getStatusCode())
                     .headers(safeHeaders(e))
@@ -100,7 +84,6 @@ public class BaseClient {
         UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(serverUrl).path(path);
 
         if (queryParams != null) {
-            // не добавляем null/пустые значения, чтобы не получить "?approved="
             queryParams.forEach((k, v) -> {
                 if (v != null) {
                     b.queryParam(k, v);

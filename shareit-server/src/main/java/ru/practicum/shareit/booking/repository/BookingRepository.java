@@ -53,10 +53,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             LocalDateTime start
     );
 
-    Optional<Booking> findFirstByItem_IdAndBooker_IdAndStatusOrderByEndDesc(
-            Long itemId, Long bookerId, BookingStatus status
-    );
-
     @Query("select b " +
             "from Booking b " +
             "join fetch b.item i " +
@@ -81,6 +77,13 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "order by b.start asc")
     List<Booking> findNextBookingsForItems(
             List<Long> itemIds,
+            BookingStatus status,
+            LocalDateTime now
+    );
+
+    boolean existsByItem_IdAndBooker_IdAndStatusAndEndLessThanEqual(
+            Long itemId,
+            Long bookerId,
             BookingStatus status,
             LocalDateTime now
     );

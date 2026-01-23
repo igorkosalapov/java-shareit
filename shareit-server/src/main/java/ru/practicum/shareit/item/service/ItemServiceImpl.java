@@ -1,5 +1,12 @@
 package ru.practicum.shareit.item.service;
 
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +30,6 @@ import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
         ItemDto dto = itemMapper.toDto(item);
-        dto.setComments(commentRepository.findAllByItem_IdOrderByCreatedDesc(itemId)
+        dto.setComments(commentRepository.findAllByItem_IdOrderByCreatedDescIdDesc(itemId)
                 .stream()
                 .map(commentMapper::toDto)
                 .toList());
@@ -160,11 +161,11 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Вещь не найдена"));
 
         LocalDateTime now = LocalDateTime.now();
-        Booking booking = bookingRepository
-                .findFirstByItem_IdAndBooker_IdAndStatusOrderByEndDesc(itemId, userId, BookingStatus.APPROVED)
-                .orElseThrow(() -> new BadRequestException("Комментарий можно оставить только после завершённого бронирования"));
 
-        if (booking.getEnd().isAfter(now)) { // end > now => ещё не закончилось
+        boolean hasFinishedBooking = bookingRepository
+                .existsByItem_IdAndBooker_IdAndStatusAndEndLessThanEqual(itemId, userId, BookingStatus.APPROVED, now);
+
+        if (!hasFinishedBooking) {
             throw new BadRequestException("Комментарий можно оставить только после завершённого бронирования");
         }
 
