@@ -35,8 +35,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
         User requestor = userService.findByIdOrThrow(userId);
 
         ItemRequest request = requestMapper.toEntity(dto.getDescription(), requestor, LocalDateTime.now());
-        ItemRequest saved = itemRequestRepository.save(request);
-        return requestMapper.toResponse(saved, Collections.emptyList());
+        request = itemRequestRepository.save(request);
+        return requestMapper.toResponse(request, Collections.emptyList());
     }
 
     @Override

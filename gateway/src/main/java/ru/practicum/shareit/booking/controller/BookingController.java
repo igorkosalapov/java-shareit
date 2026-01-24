@@ -11,9 +11,9 @@ import org.springframework.web.server.ResponseStatusException;
 import ru.practicum.shareit.booking.dto.BookingCreateDto;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.booking.client.BookingClient;
+import ru.practicum.shareit.booking.model.BookingState;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -23,9 +23,6 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 public class BookingController {
 
     private final BookingClient bookingClient;
-
-    private static final Set<String> ALLOWED =
-            Set.of("ALL", "CURRENT", "PAST", "FUTURE", "WAITING", "REJECTED");
 
     public BookingController(BookingClient bookingClient) {
         this.bookingClient = bookingClient;
@@ -55,40 +52,27 @@ public class BookingController {
 
     @GetMapping
     public ResponseEntity<Object> getBookerBookings(@RequestHeader(BaseClient.USER_HEADER) @Positive long userId,
-                                                    @RequestParam(defaultValue = "ALL") String state,
+                                                    @RequestParam(defaultValue = "ALL") BookingState state,
                                                     @RequestParam(defaultValue = "0") @Min(0) int from,
                                                     @RequestParam(defaultValue = "10") @Min(1) int size) {
-        validateState(state);
-        return bookingClient.getBookerBookings(userId, state, from, size);
+        return bookingClient.getBookerBookings(userId, state.name(), from, size);
     }
 
     @GetMapping("/owner")
     public ResponseEntity<Object> getOwnerBookings(@RequestHeader(BaseClient.USER_HEADER) @Positive long userId,
-                                                   @RequestParam(defaultValue = "ALL") String state,
-                                                   @RequestParam(defaultValue = "0") @Min(0) int from,
+                                                   @RequestParam(defaultValue = "ALL") BookingState state, @RequestParam(defaultValue = "0") @Min(0) int from,
                                                    @RequestParam(defaultValue = "10") @Min(1) int size) {
-        validateState(state);
-        return bookingClient.getOwnerBookings(userId, state, from, size);
+        return bookingClient.getOwnerBookings(userId, state.name(), from, size);
     }
 
     private void validateDates(LocalDateTime start, LocalDateTime end) {
 
-        if (start == null || end == null) {
-            throw new ResponseStatusException(BAD_REQUEST, "start/end must not be null");
-        }
         if (!end.isAfter(start)) {
             throw new ResponseStatusException(BAD_REQUEST, "end must be after start");
         }
         LocalDateTime now = LocalDateTime.now();
         if (!start.isAfter(now) || !end.isAfter(now)) {
             throw new ResponseStatusException(BAD_REQUEST, "booking dates must be in the future");
-        }
-    }
-
-    private void validateState(String state) {
-        if (state == null) return;
-        if (!ALLOWED.contains(state)) {
-            throw new ResponseStatusException(BAD_REQUEST, "Unknown state: " + state);
         }
     }
 }
